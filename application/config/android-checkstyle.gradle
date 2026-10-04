@@ -1,0 +1,14 @@
+apply plugin: 'checkstyle'
+check.dependsOn 'checkstyle'
+
+checkstyle {
+    toolVersion = '10.18.2'
+}
+
+task checkstyle(type: Checkstyle) {
+    description = "Check Java style with Checkstyle"
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+    source 'src/main/java', 'src/test/java'
+    classpath = files()
+    ignoreFailures = true
+}

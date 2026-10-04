@@ -1,0 +1,44 @@
+# Gradle & Build files
+.gradle/
+build/
+**/build/
+**/.gradle/
+dist/
+**/dist/
+
+# Android Studio & IDEs
+.idea/
+**/.idea/
+*.iml
+**/*.iml
+.vscode/
+**/.vscode/
+.DS_Store
+**/.DS_Store
+Thumbs.db
+*.log
+
+# Android Local configuration & Private Keys & Keystores
+local.properties
+**/local.properties
+*.jks
+*.keystore
+*.p12
+*.pkcs12
+*.keys
+*.key
+*.pem
+*.cer
+*.crt
+/tkno
+*.tkno
+
+# Rust / Cargo
+target/
+**/target/
+**/*.rs.bk
+
+# Android Output & Caches
+captures/
+.externalNativeBuild/
+.cxx/

@@ -1,0 +1,8 @@
+apply plugin: 'checkstyle'
+
+checkstyle {
+    toolVersion = '10.18.2'
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml").exists() ?
+            rootProject.file("config/checkstyle/checkstyle.xml") :
+            rootProject.file("../../application/config/checkstyle/checkstyle.xml")
+}

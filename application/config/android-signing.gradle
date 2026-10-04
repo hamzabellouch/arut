@@ -1,0 +1,27 @@
+// Load extra properties from local.properties if present
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+    localProperties.each { name, value ->
+        if (!project.hasProperty(name)) {
+            project.ext.set(name, value)
+        }
+    }
+}
+
+if (project.hasProperty("RELEASE_STORE_FILE")) {
+    android.signingConfigs {
+        release {
+            storeFile file(RELEASE_STORE_FILE)
+            storePassword project.findProperty("RELEASE_STORE_PASSWORD") ?: ""
+            keyAlias project.findProperty("RELEASE_KEY_ALIAS") ?: ""
+            keyPassword project.findProperty("RELEASE_KEY_PASSWORD") ?: (project.findProperty("RELEASE_STORE_PASSWORD") ?: "")
+        }
+    }
+    android.buildTypes.release.signingConfig = android.signingConfigs.release
+} else {
+    // Fallback to debug signature so APK is always signed and installable on devices
+    android.buildTypes.release.signingConfig = android.signingConfigs.debug
+}
+
