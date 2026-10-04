@@ -1,0 +1,47 @@
+def isCargoAvailable() {
+    try {
+        def process = "cargo --version".execute()
+        process.waitFor()
+        return process.exitValue() == 0
+    } catch (Exception ignored) {
+        return false
+    }
+}
+
+task debug(type: Exec) {
+    onlyIf { isCargoAvailable() }
+    commandLine 'cargo', 'build'
+}
+
+task release(type: Exec) {
+    onlyIf { isCargoAvailable() }
+    commandLine 'cargo', 'build', '--release'
+}
+
+task test(type: Exec) {
+    onlyIf { isCargoAvailable() }
+    commandLine 'cargo', 'test'
+}
+
+task install(type: Exec) {
+    onlyIf { isCargoAvailable() }
+    commandLine 'cargo', 'install'
+}
+
+task clean(type: Delete) {
+    delete layout.buildDirectory
+    delete file('target')
+}
+
+task checkstyle(type: Exec) {
+    onlyIf { isCargoAvailable() }
+    commandLine 'cargo', 'fmt', '--', '--check'
+}
+
+task check(dependsOn: ['checkstyle', 'test'])
+task build(dependsOn: ['check', 'debug', 'release'])
+
+task releaseCrossToWindows(type: Exec) {
+    onlyIf { isCargoAvailable() }
+    commandLine 'cargo', 'build', '--release', '--target=x86_64-pc-windows-gnu'
+}

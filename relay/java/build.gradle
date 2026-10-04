@@ -1,0 +1,42 @@
+apply plugin: 'application'
+apply plugin: 'java'
+
+application {
+    mainClass = 'com.tkno.arut.Main'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'com.tkno.arut.Main'
+        )
+    }
+    archiveBaseName.set('arut')
+}
+
+task assembleDebug(dependsOn: 'jar')
+task assembleRelease(dependsOn: ['build', 'jar'])
+def checkstyleConfig = file("$project.rootDir/config/java-checkstyle.gradle")
+if (!checkstyleConfig.exists()) {
+    checkstyleConfig = file("$project.rootDir/../../application/config/java-checkstyle.gradle")
+}
+if (checkstyleConfig.exists()) {
+    apply from: checkstyleConfig
+}
+test {
+    // to log using System.out.println(…) in tests
+    testLogging.showStandardStreams = true
+}

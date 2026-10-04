@@ -1,0 +1,560 @@
+/*
+ * Copyright (C) 2017 Tkno
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.tkno.arut;
+
+import com.tkno.arut.relay.Log;
+import com.tkno.arut.relay.Relay;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public final class Main {
+    private static final String TAG = "ARUT";
+    private static final String NL = System.lineSeparator();
+    private static final String REQUIRED_APK_VERSION_CODE = "9";
+
+    private Main() {
+        // not instantiable
+    }
+
+    private static boolean isWindows() {
+        String os = System.getProperty("os.name");
+        return os != null && os.toLowerCase(Locale.ENGLISH).contains("win");
+    }
+
+    private static String getAdbFromLocalProperties() {
+        File[] candidates = {new File("local.properties"), new File("../local.properties")};
+        for (File file : candidates) {
+            if (file.exists()) {
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    Properties props = new Properties();
+                    props.load(fis);
+                    String sdkDir = props.getProperty("sdk.dir");
+                    if (sdkDir != null) {
+                        File adbFile = new File(sdkDir, "platform-tools/adb" + (isWindows() ? ".exe" : ""));
+                        if (adbFile.exists()) {
+                            return adbFile.getAbsolutePath();
+                        }
+                    }
+                } catch (IOException ignored) {
+                    // ignore
+                }
+            }
+        }
+        return null;
+    }
+
+    private static String getAdbPath() {
+        String adb = System.getenv("ADB");
+        if (adb != null && new File(adb).exists()) {
+            return adb;
+        }
+
+        File localAdb = new File(isWindows() ? "adb.exe" : "adb");
+        if (localAdb.exists()) {
+            return localAdb.getAbsolutePath();
+        }
+
+        String fromLocalProps = getAdbFromLocalProperties();
+        if (fromLocalProps != null) {
+            return fromLocalProps;
+        }
+
+        String androidHome = System.getenv("ANDROID_HOME");
+        if (androidHome == null) {
+            androidHome = System.getenv("ANDROID_SDK_ROOT");
+        }
+        if (androidHome != null) {
+            File adbFile = new File(androidHome, "platform-tools/adb" + (isWindows() ? ".exe" : ""));
+            if (adbFile.exists()) {
+                return adbFile.getAbsolutePath();
+            }
+        }
+
+        String userHome = System.getProperty("user.home");
+        if (userHome != null) {
+            String[] candidatePaths = {
+                userHome + "/AppData/Local/Android/Sdk/platform-tools/adb.exe",
+                "C:/Dev/platform-tools-latest-windows/platform-tools/adb.exe",
+                userHome + "/Library/Android/sdk/platform-tools/adb",
+                userHome + "/Android/Sdk/platform-tools/adb"
+            };
+            for (String path : candidatePaths) {
+                File candidate = new File(path);
+                if (candidate.exists()) {
+                    return candidate.getAbsolutePath();
+                }
+            }
+        }
+
+        return adb != null ? adb : "adb";
+    }
+
+    private static String getApkPath() {
+        String apk = System.getenv("ARUT_APK");
+        if (apk == null) {
+            apk = System.getenv("ARE_APK");
+        }
+        if (apk == null) {
+            apk = System.getenv("GNIREHTET_APK");
+        }
+        if (apk != null && new File(apk).exists()) {
+            return apk;
+        }
+        File[] candidates = {
+            new File("arut.apk"),
+            new File("app/build/outputs/apk/debug/arut-debug.apk"),
+            new File("app/build/outputs/apk/release/arut-release.apk"),
+            new File("../app/build/outputs/apk/debug/arut-debug.apk")
+        };
+        for (File candidate : candidates) {
+            if (candidate.exists()) {
+                return candidate.getPath();
+            }
+        }
+        return "arut.apk";
+    }
+
+    enum Command {
+        INSTALL("install", CommandLineArguments.PARAM_SERIAL) {
+            @Override
+            String getDescription() {
+                return "Install the client on the Android device and exit.\n"
+                        + "If several devices are connected via adb, then serial must be\n"
+                        + "specified.";
+            }
+
+            @Override
+            void execute(CommandLineArguments args) throws Exception {
+                cmdInstall(args.getSerial());
+            }
+        },
+        UNINSTALL("uninstall", CommandLineArguments.PARAM_SERIAL) {
+            @Override
+            String getDescription() {
+                return "Uninstall the client from the Android device and exit.\n"
+                        + "If several devices are connected via adb, then serial must be\n"
+                        + "specified.";
+            }
+
+            @Override
+            void execute(CommandLineArguments args) throws Exception {
+                cmdUninstall(args.getSerial());
+            }
+        },
+        REINSTALL("reinstall", CommandLineArguments.PARAM_SERIAL) {
+            @Override
+            String getDescription() {
+                return "Uninstall then install.";
+            }
+
+            @Override
+            void execute(CommandLineArguments args) throws Exception {
+                cmdReinstall(args.getSerial());
+            }
+        },
+        RUN("run", CommandLineArguments.PARAM_SERIAL | CommandLineArguments.PARAM_DNS_SERVER | CommandLineArguments.PARAM_ROUTES
+                | CommandLineArguments.PARAM_PORT) {
+            @Override
+            String getDescription() {
+                return "Enable reverse tethering for exactly one device:\n"
+                        + "  - install the client if necessary;\n"
+                        + "  - start the client;\n"
+                        + "  - start the relay server;\n"
+                        + "  - on Ctrl+C, stop both the relay server and the client.";
+            }
+
+            @Override
+            void execute(CommandLineArguments args) throws Exception {
+                cmdRun(args.getSerial(), args.getDnsServers(), args.getRoutes(), args.getPort());
+            }
+        },
+        AUTORUN("autorun", CommandLineArguments.PARAM_DNS_SERVER | CommandLineArguments.PARAM_ROUTES | CommandLineArguments.PARAM_PORT) {
+            @Override
+            String getDescription() {
+                return "Enable reverse tethering for all devices:\n"
+                        + "  - monitor devices and start clients (autostart);\n"
+                        + "  - start the relay server.";
+            }
+
+            @Override
+            void execute(CommandLineArguments args) throws Exception {
+                cmdAutorun(args.getDnsServers(), args.getRoutes(), args.getPort());
+            }
+        },
+        START("start", CommandLineArguments.PARAM_SERIAL | CommandLineArguments.PARAM_DNS_SERVER | CommandLineArguments.PARAM_ROUTES
+                | CommandLineArguments.PARAM_PORT) {
+            @Override
+            String getDescription() {
+                return "Start a client on the Android device and exit.\n"
+                        + "If several devices are connected via adb, then serial must be\n"
+                        + "specified.\n"
+                        + "If -d is given, then make the Android device use the specified\n"
+                        + "DNS server(s). Otherwise, use 8.8.8.8 (Google public DNS).\n"
+                        + "If -r is given, then only reverse tether the specified routes.\n"
+                        + "If -p is given, then make the relay server listen on the specified\n"
+                        + "port. Otherwise, use port 31416.\n"
+                        + "Otherwise, use 0.0.0.0/0 (redirect the whole traffic).\n"
+                        + "If the client is already started, then do nothing, and ignore\n"
+                        + "the other parameters.\n"
+                        + "10.0.2.2 is mapped to the host 'localhost'.";
+            }
+
+            @Override
+            void execute(CommandLineArguments args) throws Exception {
+                cmdStart(args.getSerial(), args.getDnsServers(), args.getRoutes(), args.getPort());
+            }
+        },
+        AUTOSTART("autostart", CommandLineArguments.PARAM_DNS_SERVER | CommandLineArguments.PARAM_ROUTES | CommandLineArguments.PARAM_PORT) {
+            @Override
+            String getDescription() {
+                return "Listen for device connexions and start a client on every detected\n"
+                        + "device.\n"
+                        + "Accept the same parameters as the start command (excluding the\n"
+                        + "serial, which will be taken from the detected device).";
+            }
+
+            @Override
+            void execute(CommandLineArguments args) throws Exception {
+                cmdAutostart(args.getDnsServers(), args.getRoutes(), args.getPort());
+            }
+        },
+        STOP("stop", CommandLineArguments.PARAM_SERIAL) {
+            @Override
+            String getDescription() {
+                return "Stop the client on the Android device and exit.\n"
+                        + "If several devices are connected via adb, then serial must be\n"
+                        + "specified.";
+            }
+
+            @Override
+            void execute(CommandLineArguments args) throws Exception {
+                cmdStop(args.getSerial());
+            }
+        },
+        RESTART("restart", CommandLineArguments.PARAM_SERIAL | CommandLineArguments.PARAM_DNS_SERVER | CommandLineArguments.PARAM_ROUTES
+                | CommandLineArguments.PARAM_PORT) {
+            @Override
+            String getDescription() {
+                return "Stop then start.";
+            }
+
+            @Override
+            void execute(CommandLineArguments args) throws Exception {
+                cmdRestart(args.getSerial(), args.getDnsServers(), args.getRoutes(), args.getPort());
+            }
+        },
+        TUNNEL("tunnel", CommandLineArguments.PARAM_SERIAL | CommandLineArguments.PARAM_PORT) {
+            @Override
+            String getDescription() {
+                return "Set up the 'adb reverse' tunnel.\n"
+                        + "If a device is unplugged then plugged back while ARE is\n"
+                        + "active, resetting the tunnel is sufficient to get the\n"
+                        + "connection back.";
+            }
+
+            @Override
+            void execute(CommandLineArguments args) throws Exception {
+                cmdTunnel(args.getSerial(), args.getPort());
+            }
+        },
+        RELAY("relay", CommandLineArguments.PARAM_PORT) {
+            @Override
+            String getDescription() {
+                return "Start the relay server in the current terminal.";
+            }
+
+            @Override
+            void execute(CommandLineArguments args) throws Exception {
+                cmdRelay(args.getPort());
+            }
+        };
+
+        private String command;
+        private int acceptedParameters;
+
+        Command(String command, int acceptedParameters) {
+            this.command = command;
+            this.acceptedParameters = acceptedParameters;
+        }
+
+        abstract String getDescription();
+
+        abstract void execute(CommandLineArguments args) throws Exception;
+    }
+
+    private static void cmdInstall(String serial) throws InterruptedException, IOException, CommandExecutionException {
+        Log.i(TAG, "Installing ARUT client...");
+        execAdb(serial, "install", "-r", getApkPath());
+    }
+
+    private static void cmdUninstall(String serial) throws InterruptedException, IOException, CommandExecutionException {
+        Log.i(TAG, "Uninstalling ARUT client...");
+        execAdb(serial, "uninstall", "com.tkno.arut");
+    }
+
+    private static void cmdReinstall(String serial) throws InterruptedException, IOException, CommandExecutionException {
+        cmdUninstall(serial);
+        cmdInstall(serial);
+    }
+
+    private static void cmdRun(String serial, String dnsServers, String routes, int port) throws IOException {
+        // start in parallel so that the relay server is ready when the client connects
+        asyncStart(serial, dnsServers, routes, port);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            // executed on Ctrl+C
+            try {
+                cmdStop(serial);
+            } catch (Exception e) {
+                Log.e(TAG, "Cannot stop client", e);
+            }
+        }));
+
+        cmdRelay(port);
+    }
+
+    private static void cmdAutorun(final String dnsServers, final String routes, int port) throws IOException {
+        new Thread(() -> {
+            try {
+                cmdAutostart(dnsServers, routes, port);
+            } catch (Exception e) {
+                Log.e(TAG, "Cannot auto start clients", e);
+            }
+        }).start();
+
+        cmdRelay(port);
+    }
+
+    @SuppressWarnings("checkstyle:MagicNumber")
+    private static void cmdStart(String serial, String dnsServers, String routes, int port) throws InterruptedException, IOException,
+            CommandExecutionException {
+        if (mustInstallClient(serial)) {
+            cmdInstall(serial);
+            // wait a bit after the app is installed so that intent actions are correctly registered
+            Thread.sleep(500); // ms
+        }
+
+        Log.i(TAG, "Starting client...");
+        cmdTunnel(serial, port);
+
+        // Keep cellular network interface active in background to satisfy Play Store/DownloadManager
+        try {
+            execAdb(serial, "shell", "settings", "put", "global", "mobile_data_always_on", "1");
+            execAdb(serial, "shell", "svc", "data", "enable");
+        } catch (Exception e) {
+            Log.d(TAG, "Cannot enable mobile_data_always_on", e);
+        }
+
+        List<String> cmd = new ArrayList<>();
+        Collections.addAll(cmd, "shell", "am", "start", "-a", "com.tkno.arut.START", "-n",
+                "com.tkno.arut/.ArutActivity");
+        if (dnsServers != null) {
+            Collections.addAll(cmd, "--esa", "dnsServers", dnsServers);
+        }
+        if (routes != null) {
+            Collections.addAll(cmd, "--esa", "routes", routes);
+        }
+        execAdb(serial, cmd);
+    }
+
+    private static void cmdAutostart(final String dnsServers, final String routes, int port) {
+        AdbMonitor adbMonitor = new AdbMonitor((serial) -> {
+            asyncStart(serial, dnsServers, routes, port);
+        });
+        adbMonitor.monitor();
+    }
+
+    private static void cmdStop(String serial) throws InterruptedException, IOException, CommandExecutionException {
+        Log.i(TAG, "Stopping client...");
+        execAdb(serial, "shell", "am", "start", "-a", "com.tkno.arut.STOP", "-n",
+                "com.tkno.arut/.ArutActivity");
+    }
+
+    private static void cmdRestart(String serial, String dnsServers, String routes, int port) throws InterruptedException, IOException,
+            CommandExecutionException {
+        cmdStop(serial);
+        cmdStart(serial, dnsServers, routes, port);
+    }
+
+    private static void cmdTunnel(String serial, int port) throws InterruptedException, IOException, CommandExecutionException {
+        execAdb(serial, "reverse", "localabstract:arut", "tcp:" + port);
+    }
+
+    private static void cmdRelay(int port) throws IOException {
+        Log.i(TAG, "Starting relay server on port " + port + "...");
+        new Relay(port).run();
+    }
+
+    private static void asyncStart(String serial, String dnsServers, String routes, int port) {
+        new Thread(() -> {
+            try {
+                cmdStart(serial, dnsServers, routes, port);
+            } catch (Exception e) {
+                Log.e(TAG, "Cannot start client", e);
+            }
+        }).start();
+    }
+
+    private static void execAdb(String serial, String... adbArgs) throws InterruptedException, IOException, CommandExecutionException {
+        execSync(createAdbCommand(serial, adbArgs));
+    }
+
+    private static List<String> createAdbCommand(String serial, String... adbArgs) {
+        List<String> command = new ArrayList<>();
+        command.add(getAdbPath());
+        if (serial != null) {
+            command.add("-s");
+            command.add(serial);
+        }
+        Collections.addAll(command, adbArgs);
+        return command;
+    }
+
+    private static void execAdb(String serial, List<String> adbArgList) throws InterruptedException, IOException, CommandExecutionException {
+        String[] adbArgs = adbArgList.toArray(new String[adbArgList.size()]);
+        execAdb(serial, adbArgs);
+    }
+
+    private static void execSync(List<String> command) throws InterruptedException, IOException, CommandExecutionException {
+        Log.d(TAG, "Execute: " + command);
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT).redirectError(ProcessBuilder.Redirect.INHERIT);
+        Process process = processBuilder.start();
+        int exitCode = process.waitFor();
+        if (exitCode != 0) {
+            throw new CommandExecutionException(command, exitCode);
+        }
+    }
+
+    private static boolean mustInstallClient(String serial) throws InterruptedException, IOException, CommandExecutionException {
+        Log.i(TAG, "Checking ARUT client...");
+        List<String> command = createAdbCommand(serial, "shell", "dumpsys", "package", "com.tkno.arut");
+        Log.d(TAG, "Execute: " + command);
+        Process process = new ProcessBuilder(command).start();
+        try {
+            Scanner scanner = new Scanner(process.getInputStream());
+            // read the versionCode of the installed package
+            Pattern pattern = Pattern.compile("^\\s*versionCode=(\\p{Digit}+).*");
+            while (scanner.hasNextLine()) {
+                Matcher matcher = pattern.matcher(scanner.nextLine());
+                if (matcher.matches()) {
+                    String installedVersionCode = matcher.group(1);
+                    process.destroy();
+                    return !REQUIRED_APK_VERSION_CODE.equals(installedVersionCode);
+                }
+            }
+        } finally {
+            process.destroy();
+            process.waitFor();
+        }
+        return true;
+    }
+
+
+    private static void printUsage() {
+        StringBuilder builder = new StringBuilder("Syntax: arut (");
+        Command[] commands = Command.values();
+        for (int i = 0; i < commands.length; ++i) {
+            if (i != 0) {
+                builder.append('|');
+            }
+            builder.append(commands[i].command);
+        }
+        builder.append(") ...").append(NL);
+
+        for (Command command : commands) {
+            builder.append(NL);
+            appendCommandUsage(builder, command);
+        }
+
+        System.err.print(builder.toString());
+    }
+
+    private static void appendCommandUsage(StringBuilder builder, Command command) {
+        builder.append("  arut ").append(command.command);
+        if ((command.acceptedParameters & CommandLineArguments.PARAM_SERIAL) != 0) {
+            builder.append(" [serial]");
+        }
+        if ((command.acceptedParameters & CommandLineArguments.PARAM_DNS_SERVER) != 0) {
+            builder.append(" [-d DNS[,DNS2,...]]");
+        }
+        if ((command.acceptedParameters & CommandLineArguments.PARAM_PORT) != 0) {
+            builder.append(" [-p PORT]");
+        }
+        if ((command.acceptedParameters & CommandLineArguments.PARAM_ROUTES) != 0) {
+            builder.append(" [-r ROUTE[,ROUTE2,...]]");
+        }
+        builder.append(NL);
+        String[] descLines = command.getDescription().split("\n");
+        for (String descLine : descLines) {
+            builder.append("      ").append(descLine).append(NL);
+        }
+    }
+
+    private static void printCommandUsage(Command command) {
+        StringBuilder builder = new StringBuilder();
+        appendCommandUsage(builder, command);
+        System.err.print(builder.toString());
+    }
+
+    public static void main(String... args) throws Exception {
+        if (args.length == 0) {
+            printUsage();
+            return;
+        }
+
+        String cmd = args[0];
+        for (Command command : Command.values()) {
+            if (cmd.equals(command.command)) {
+                // forget args[0] containing the command name
+                String[] commandArgs = Arrays.copyOfRange(args, 1, args.length);
+
+                CommandLineArguments arguments;
+                try {
+                    arguments = CommandLineArguments.parse(command.acceptedParameters, commandArgs);
+                } catch (IllegalArgumentException e) {
+                    Log.e(TAG, e.getMessage());
+                    printCommandUsage(command);
+                    return;
+                }
+
+                command.execute(arguments);
+                return;
+            }
+        }
+
+        if ("rt".equals(cmd)) {
+            Log.e(TAG, "The 'rt' command has been renamed to 'run'. Try 'are run' instead.");
+            printCommandUsage(Command.RUN);
+        } else {
+            Log.e(TAG, "Unknown command: " + cmd);
+            printUsage();
+        }
+    }
+}
+
