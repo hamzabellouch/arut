@@ -237,7 +237,7 @@ The `arut` CLI provides flexible commands to control the connection:
 | :--- | :--- |
 | `arut run` | Starts the relay and activates reverse tethering on a connected device (stops on Ctrl+C) |
 | `arut autorun` | Automatically enables reverse tethering for all connected & future devices |
-| `arut relay` | Starts only the relay server on the computer (listens on port 31416) |
+| `arut relay` | Starts only the relay server on the computer (listens on port 26074) |
 | `arut install [serial]` | Installs `arut.apk` on the specified target device |
 | `arut start [serial]` | Starts reverse tethering client on a device |
 | `arut stop [serial]` | Stops reverse tethering client on a device |

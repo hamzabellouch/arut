@@ -37,7 +37,7 @@ ARUT requests specific Android permissions strictly to deliver its core network 
 - **Scope:** Active only when a tethering session is initiated by the user.
 
 **C. Internet & Network State** (`INTERNET` & `ACCESS_NETWORK_STATE`)
-- **Purpose:** Allows the Android client to establish loopback socket connections with the local relay server over the ADB reverse redirected port (`localhost:31416`) and check network state.
+- **Purpose:** Allows the Android client to establish loopback socket connections with the local relay server over the ADB reverse redirected port (`localhost:26074`) and check network state.
 - **Scope:** Used strictly for local loopback socket tunneling. No telemetry or external server communication occurs.
 
 **D. Post Notifications** (`POST_NOTIFICATIONS`)
@@ -120,7 +120,7 @@ Email: hamzabellouchcontact@gmail.com
 * **النطاق:** ينشط فقط عند بدء جلسة التوصيل بواسطة المستخدم.
 
 **ج. إذن الإنترنت وحالة الشبكة (`INTERNET` & `ACCESS_NETWORK_STATE`)**
-* **الغرض:** يسمح لتطبيق Android بالتواصل محليًا مع خادم الترحيل عبر المنفذ المعاد توجيهه (`localhost:31416`) ومراقبة حالة الاتصال.
+* **الغرض:** يسمح لتطبيق Android بالتواصل محليًا مع خادم الترحيل عبر المنفذ المعاد توجيهه (`localhost:26074`) ومراقبة حالة الاتصال.
 * **النطاق:** يُستخدم حصريًا للاتصال المحلي (Loopback Socket). لا يتم إجراء أي اتصال بخوادم خارجية.
 
 **د. إذن إرسال الإشعارات (`POST_NOTIFICATIONS`)**

@@ -217,7 +217,7 @@ public final class Main {
                         + "DNS server(s). Otherwise, use 8.8.8.8 (Google public DNS).\n"
                         + "If -r is given, then only reverse tether the specified routes.\n"
                         + "If -p is given, then make the relay server listen on the specified\n"
-                        + "port. Otherwise, use port 31416.\n"
+                        + "port. Otherwise, use port 26074.\n"
                         + "Otherwise, use 0.0.0.0/0 (redirect the whole traffic).\n"
                         + "If the client is already started, then do nothing, and ignore\n"
                         + "the other parameters.\n"

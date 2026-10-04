@@ -224,7 +224,7 @@ impl Command for StartCommand {
          If -r is given, then only reverse tether the specified routes.\n\
          Otherwise, use 0.0.0.0/0 (redirect the whole traffic).\n\
          If -p is given, then make the relay server listen on the specified\n\
-         port. Otherwise, use port 31416.\n\
+         port. Otherwise, use port 26074.\n\
          If the client is already started, then do nothing, and ignore\n\
          the other parameters.\n\
          10.0.2.2 is mapped to the host 'localhost'."

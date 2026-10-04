@@ -28,7 +28,7 @@ public class CommandLineArguments {
     public static final int PARAM_ROUTES = 1 << 2;
     public static final int PARAM_PORT = 1 << 3;
 
-    public static final int DEFAULT_PORT = 31416;
+    public static final int DEFAULT_PORT = 26074;
 
     private int port;
     private String serial;
