@@ -18,6 +18,12 @@ task release(type: Exec) {
     commandLine 'cargo', 'build', '--release'
 }
 
+task releaseLinux(type: Exec) {
+    onlyIf { isCargoAvailable() }
+    environment 'RUSTFLAGS', '-C linker=rust-lld'
+    commandLine 'cargo', 'build', '--release', '--target=x86_64-unknown-linux-musl'
+}
+
 task test(type: Exec) {
     onlyIf { isCargoAvailable() }
     commandLine 'cargo', 'test'

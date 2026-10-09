@@ -1,0 +1,20 @@
+# Enforce consistent line endings across platforms
+* text=auto
+
+# Linux / Unix shell scripts must always use LF
+*.sh text eol=lf
+arut text eol=lf
+arut-run text eol=lf
+
+# Windows batch scripts must always use CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binary assets
+*.jar binary
+*.apk binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.zip binary

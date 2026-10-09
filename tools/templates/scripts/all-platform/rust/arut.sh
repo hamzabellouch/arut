@@ -3,8 +3,8 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 export PATH="$DIR:$PATH"
 export LD_LIBRARY_PATH="$DIR/lib64:$LD_LIBRARY_PATH"
 export DYLD_LIBRARY_PATH="$DIR/lib64:$DYLD_LIBRARY_PATH"
-if [ -f "$DIR/arut.jar" ]; then
-    exec java -jar "$DIR/arut.jar" "$@"
+if [ -f "$DIR/arut" ] && [ -x "$DIR/arut" ]; then
+    "$DIR/arut" "$@"
 else
-    echo "[ERROR] arut.jar not found."
+    echo "[ERROR] arut native binary not found."
 fi

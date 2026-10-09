@@ -44,6 +44,7 @@ JAR_SRC="$ROOT_DIR/relay/java/build/libs/arut.jar"
 TOOLS_ADB_WIN="$ROOT_DIR/tools/adb/windows"
 TOOLS_ADB_LINUX="$ROOT_DIR/tools/adb/linux"
 TOOLS_ADB_MACOS="$ROOT_DIR/tools/adb/macos"
+TEMPLATES_SCRIPTS="$ROOT_DIR/tools/templates/scripts"
 
 DIR_WIN_RUST="$ROOT_DIR/dist/windows/arut-rust-win64-$VERSION"
 DIR_WIN_JAVA="$ROOT_DIR/dist/windows/arut-java-win64-$VERSION"
@@ -65,50 +66,14 @@ mkdir -p "$DIR_WIN_RUST"
 [ -f "$APK_SRC" ] && cp -f "$APK_SRC" "$DIR_WIN_RUST/arut.apk"
 [ -d "$TOOLS_ADB_WIN" ] && cp -rf "$TOOLS_ADB_WIN"/* "$DIR_WIN_RUST/"
 [ -f "$ROOT_DIR/relay/rust/target/release/arut.exe" ] && cp -f "$ROOT_DIR/relay/rust/target/release/arut.exe" "$DIR_WIN_RUST/"
-
-cat << 'EOF' > "$DIR_WIN_RUST/arut-run.cmd"
-@echo off
-if exist "%~dp0arut.exe" (
-    "%~dp0arut.exe" run
-) else (
-    echo [ERROR] arut.exe native binary not found.
-)
-pause
-EOF
-
-cat << 'EOF' > "$DIR_WIN_RUST/arut.cmd"
-@echo off
-if exist "%~dp0arut.exe" (
-    "%~dp0arut.exe" %*
-) else (
-    echo [ERROR] arut.exe native binary not found.
-)
-EOF
+[ -d "$TEMPLATES_SCRIPTS/windows/rust" ] && cp -rf "$TEMPLATES_SCRIPTS/windows/rust"/* "$DIR_WIN_RUST/"
 
 echo "Packaging $DIR_WIN_JAVA..."
 mkdir -p "$DIR_WIN_JAVA"
 [ -f "$APK_SRC" ] && cp -f "$APK_SRC" "$DIR_WIN_JAVA/arut.apk"
 [ -f "$JAR_SRC" ] && cp -f "$JAR_SRC" "$DIR_WIN_JAVA/arut.jar"
 [ -d "$TOOLS_ADB_WIN" ] && cp -rf "$TOOLS_ADB_WIN"/* "$DIR_WIN_JAVA/"
-
-cat << 'EOF' > "$DIR_WIN_JAVA/arut-run.cmd"
-@echo off
-if exist "%~dp0arut.jar" (
-    java -jar "%~dp0arut.jar" run
-) else (
-    echo [ERROR] arut.jar not found.
-)
-pause
-EOF
-
-cat << 'EOF' > "$DIR_WIN_JAVA/arut.cmd"
-@echo off
-if exist "%~dp0arut.jar" (
-    java -jar "%~dp0arut.jar" %*
-) else (
-    echo [ERROR] arut.jar not found.
-)
-EOF
+[ -d "$TEMPLATES_SCRIPTS/windows/java" ] && cp -rf "$TEMPLATES_SCRIPTS/windows/java"/* "$DIR_WIN_JAVA/"
 
 # ==========================================
 # 2. Linux Packages
@@ -119,32 +84,9 @@ mkdir -p "$DIR_LINUX_RUST"
 [ -d "$TOOLS_ADB_LINUX" ] && cp -rf "$TOOLS_ADB_LINUX"/* "$DIR_LINUX_RUST/"
 [ -f "$DIR_LINUX_RUST/adb" ] && chmod +x "$DIR_LINUX_RUST/adb"
 [ -f "$ROOT_DIR/relay/rust/target/release/arut" ] && cp -f "$ROOT_DIR/relay/rust/target/release/arut" "$DIR_LINUX_RUST/" && chmod +x "$DIR_LINUX_RUST/arut"
-
-cat << 'EOF' > "$DIR_LINUX_RUST/arut-run"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-export LD_LIBRARY_PATH="$DIR/lib64:$LD_LIBRARY_PATH"
-if [ -f "$DIR/arut" ] && [ -x "$DIR/arut" ]; then
-    "$DIR/arut" run
-else
-    echo "[ERROR] arut native binary not found."
-fi
-EOF
-chmod +x "$DIR_LINUX_RUST/arut-run"
-
-cat << 'EOF' > "$DIR_LINUX_RUST/arut.sh"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-export LD_LIBRARY_PATH="$DIR/lib64:$LD_LIBRARY_PATH"
-if [ -f "$DIR/arut" ] && [ -x "$DIR/arut" ]; then
-    "$DIR/arut" "$@"
-else
-    echo "[ERROR] arut native binary not found."
-fi
-EOF
-chmod +x "$DIR_LINUX_RUST/arut.sh"
+[ -d "$TEMPLATES_SCRIPTS/linux/rust" ] && cp -rf "$TEMPLATES_SCRIPTS/linux/rust"/* "$DIR_LINUX_RUST/"
+[ -f "$DIR_LINUX_RUST/arut-run" ] && chmod +x "$DIR_LINUX_RUST/arut-run"
+[ -f "$DIR_LINUX_RUST/arut.sh" ] && chmod +x "$DIR_LINUX_RUST/arut.sh"
 
 echo "Packaging $DIR_LINUX_JAVA..."
 mkdir -p "$DIR_LINUX_JAVA"
@@ -152,32 +94,9 @@ mkdir -p "$DIR_LINUX_JAVA"
 [ -f "$JAR_SRC" ] && cp -f "$JAR_SRC" "$DIR_LINUX_JAVA/arut.jar"
 [ -d "$TOOLS_ADB_LINUX" ] && cp -rf "$TOOLS_ADB_LINUX"/* "$DIR_LINUX_JAVA/"
 [ -f "$DIR_LINUX_JAVA/adb" ] && chmod +x "$DIR_LINUX_JAVA/adb"
-
-cat << 'EOF' > "$DIR_LINUX_JAVA/arut-run"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-export LD_LIBRARY_PATH="$DIR/lib64:$LD_LIBRARY_PATH"
-if [ -f "$DIR/arut.jar" ]; then
-    exec java -jar "$DIR/arut.jar" run
-else
-    echo "[ERROR] arut.jar not found."
-fi
-EOF
-chmod +x "$DIR_LINUX_JAVA/arut-run"
-
-cat << 'EOF' > "$DIR_LINUX_JAVA/arut.sh"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-export LD_LIBRARY_PATH="$DIR/lib64:$LD_LIBRARY_PATH"
-if [ -f "$DIR/arut.jar" ]; then
-    exec java -jar "$DIR/arut.jar" "$@"
-else
-    echo "[ERROR] arut.jar not found."
-fi
-EOF
-chmod +x "$DIR_LINUX_JAVA/arut.sh"
+[ -d "$TEMPLATES_SCRIPTS/linux/java" ] && cp -rf "$TEMPLATES_SCRIPTS/linux/java"/* "$DIR_LINUX_JAVA/"
+[ -f "$DIR_LINUX_JAVA/arut-run" ] && chmod +x "$DIR_LINUX_JAVA/arut-run"
+[ -f "$DIR_LINUX_JAVA/arut.sh" ] && chmod +x "$DIR_LINUX_JAVA/arut.sh"
 
 # ==========================================
 # 3. macOS Packages
@@ -188,32 +107,9 @@ mkdir -p "$DIR_MACOS_RUST"
 [ -d "$TOOLS_ADB_MACOS" ] && cp -rf "$TOOLS_ADB_MACOS"/* "$DIR_MACOS_RUST/"
 [ -f "$DIR_MACOS_RUST/adb" ] && chmod +x "$DIR_MACOS_RUST/adb"
 [ -f "$ROOT_DIR/relay/rust/target/release/arut" ] && cp -f "$ROOT_DIR/relay/rust/target/release/arut" "$DIR_MACOS_RUST/" && chmod +x "$DIR_MACOS_RUST/arut"
-
-cat << 'EOF' > "$DIR_MACOS_RUST/arut-run"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-export DYLD_LIBRARY_PATH="$DIR/lib64:$DYLD_LIBRARY_PATH"
-if [ -f "$DIR/arut" ] && [ -x "$DIR/arut" ]; then
-    "$DIR/arut" run
-else
-    echo "[ERROR] arut native binary not found."
-fi
-EOF
-chmod +x "$DIR_MACOS_RUST/arut-run"
-
-cat << 'EOF' > "$DIR_MACOS_RUST/arut.sh"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-export DYLD_LIBRARY_PATH="$DIR/lib64:$DYLD_LIBRARY_PATH"
-if [ -f "$DIR/arut" ] && [ -x "$DIR/arut" ]; then
-    "$DIR/arut" "$@"
-else
-    echo "[ERROR] arut native binary not found."
-fi
-EOF
-chmod +x "$DIR_MACOS_RUST/arut.sh"
+[ -d "$TEMPLATES_SCRIPTS/macos/rust" ] && cp -rf "$TEMPLATES_SCRIPTS/macos/rust"/* "$DIR_MACOS_RUST/"
+[ -f "$DIR_MACOS_RUST/arut-run" ] && chmod +x "$DIR_MACOS_RUST/arut-run"
+[ -f "$DIR_MACOS_RUST/arut.sh" ] && chmod +x "$DIR_MACOS_RUST/arut.sh"
 
 echo "Packaging $DIR_MACOS_JAVA..."
 mkdir -p "$DIR_MACOS_JAVA"
@@ -221,32 +117,9 @@ mkdir -p "$DIR_MACOS_JAVA"
 [ -f "$JAR_SRC" ] && cp -f "$JAR_SRC" "$DIR_MACOS_JAVA/arut.jar"
 [ -d "$TOOLS_ADB_MACOS" ] && cp -rf "$TOOLS_ADB_MACOS"/* "$DIR_MACOS_JAVA/"
 [ -f "$DIR_MACOS_JAVA/adb" ] && chmod +x "$DIR_MACOS_JAVA/adb"
-
-cat << 'EOF' > "$DIR_MACOS_JAVA/arut-run"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-export DYLD_LIBRARY_PATH="$DIR/lib64:$DYLD_LIBRARY_PATH"
-if [ -f "$DIR/arut.jar" ]; then
-    exec java -jar "$DIR/arut.jar" run
-else
-    echo "[ERROR] arut.jar not found."
-fi
-EOF
-chmod +x "$DIR_MACOS_JAVA/arut-run"
-
-cat << 'EOF' > "$DIR_MACOS_JAVA/arut.sh"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-export DYLD_LIBRARY_PATH="$DIR/lib64:$DYLD_LIBRARY_PATH"
-if [ -f "$DIR/arut.jar" ]; then
-    exec java -jar "$DIR/arut.jar" "$@"
-else
-    echo "[ERROR] arut.jar not found."
-fi
-EOF
-chmod +x "$DIR_MACOS_JAVA/arut.sh"
+[ -d "$TEMPLATES_SCRIPTS/macos/java" ] && cp -rf "$TEMPLATES_SCRIPTS/macos/java"/* "$DIR_MACOS_JAVA/"
+[ -f "$DIR_MACOS_JAVA/arut-run" ] && chmod +x "$DIR_MACOS_JAVA/arut-run"
+[ -f "$DIR_MACOS_JAVA/arut.sh" ] && chmod +x "$DIR_MACOS_JAVA/arut.sh"
 
 # ==========================================
 # 4. All-Platform Packages
@@ -260,53 +133,9 @@ mkdir -p "$DIR_ALL_RUST"
 [ -f "$DIR_ALL_RUST/adb" ] && chmod +x "$DIR_ALL_RUST/adb"
 [ -f "$ROOT_DIR/relay/rust/target/release/arut.exe" ] && cp -f "$ROOT_DIR/relay/rust/target/release/arut.exe" "$DIR_ALL_RUST/"
 [ -f "$ROOT_DIR/relay/rust/target/release/arut" ] && cp -f "$ROOT_DIR/relay/rust/target/release/arut" "$DIR_ALL_RUST/" && chmod +x "$DIR_ALL_RUST/arut"
-
-cat << 'EOF' > "$DIR_ALL_RUST/arut-run.cmd"
-@echo off
-if exist "%~dp0arut.exe" (
-    "%~dp0arut.exe" run
-) else (
-    echo [ERROR] arut.exe native binary not found.
-)
-pause
-EOF
-
-cat << 'EOF' > "$DIR_ALL_RUST/arut.cmd"
-@echo off
-if exist "%~dp0arut.exe" (
-    "%~dp0arut.exe" %*
-) else (
-    echo [ERROR] arut.exe native binary not found.
-)
-EOF
-
-cat << 'EOF' > "$DIR_ALL_RUST/arut-run"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-export LD_LIBRARY_PATH="$DIR/lib64:$LD_LIBRARY_PATH"
-export DYLD_LIBRARY_PATH="$DIR/lib64:$DYLD_LIBRARY_PATH"
-if [ -f "$DIR/arut" ] && [ -x "$DIR/arut" ]; then
-    "$DIR/arut" run
-else
-    echo "[ERROR] arut native binary not found."
-fi
-EOF
-chmod +x "$DIR_ALL_RUST/arut-run"
-
-cat << 'EOF' > "$DIR_ALL_RUST/arut.sh"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-export LD_LIBRARY_PATH="$DIR/lib64:$LD_LIBRARY_PATH"
-export DYLD_LIBRARY_PATH="$DIR/lib64:$DYLD_LIBRARY_PATH"
-if [ -f "$DIR/arut" ] && [ -x "$DIR/arut" ]; then
-    "$DIR/arut" "$@"
-else
-    echo "[ERROR] arut native binary not found."
-fi
-EOF
-chmod +x "$DIR_ALL_RUST/arut.sh"
+[ -d "$TEMPLATES_SCRIPTS/all-platform/rust" ] && cp -rf "$TEMPLATES_SCRIPTS/all-platform/rust"/* "$DIR_ALL_RUST/"
+[ -f "$DIR_ALL_RUST/arut-run" ] && chmod +x "$DIR_ALL_RUST/arut-run"
+[ -f "$DIR_ALL_RUST/arut.sh" ] && chmod +x "$DIR_ALL_RUST/arut.sh"
 
 echo "Packaging $DIR_ALL_JAVA..."
 mkdir -p "$DIR_ALL_JAVA"
@@ -316,60 +145,37 @@ mkdir -p "$DIR_ALL_JAVA"
 [ -d "$TOOLS_ADB_LINUX" ] && cp -rf "$TOOLS_ADB_LINUX"/* "$DIR_ALL_JAVA/"
 [ -d "$TOOLS_ADB_MACOS" ] && cp -rf "$TOOLS_ADB_MACOS"/* "$DIR_ALL_JAVA/"
 [ -f "$DIR_ALL_JAVA/adb" ] && chmod +x "$DIR_ALL_JAVA/adb"
-[ -d "$ROOT_DIR/relay/java/scripts" ] && cp -rf "$ROOT_DIR/relay/java/scripts"/* "$DIR_ALL_JAVA/"
+[ -d "$TEMPLATES_SCRIPTS/all-platform/java" ] && cp -rf "$TEMPLATES_SCRIPTS/all-platform/java"/* "$DIR_ALL_JAVA/"
+[ -f "$DIR_ALL_JAVA/arut-run" ] && chmod +x "$DIR_ALL_JAVA/arut-run"
+[ -f "$DIR_ALL_JAVA/arut.sh" ] && chmod +x "$DIR_ALL_JAVA/arut.sh"
+[ -f "$DIR_ALL_JAVA/arut" ] && chmod +x "$DIR_ALL_JAVA/arut"
 
-cat << 'EOF' > "$DIR_ALL_JAVA/arut-run.cmd"
-@echo off
-if exist "%~dp0arut.jar" (
-    java -jar "%~dp0arut.jar" run
-) else (
-    echo [ERROR] arut.jar not found.
-)
-pause
-EOF
-
-cat << 'EOF' > "$DIR_ALL_JAVA/arut.cmd"
-@echo off
-if exist "%~dp0arut.jar" (
-    java -jar "%~dp0arut.jar" %*
-) else (
-    echo [ERROR] arut.jar not found.
-)
-EOF
-
-cat << 'EOF' > "$DIR_ALL_JAVA/arut-run"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-if [ -f "$DIR/arut.jar" ]; then
-    exec java -jar "$DIR/arut.jar" run
-else
-    echo "[ERROR] arut.jar not found."
+# ==========================================
+# 5. Create Distribution Zip Archives
+# ==========================================
+echo ""
+echo "Compressing distribution packages into .zip archives..."
+if command -v zip >/dev/null 2>&1; then
+    cd "$ROOT_DIR/dist/windows" && zip -r "arut-rust-win64-$VERSION.zip" "arut-rust-win64-$VERSION"
+    cd "$ROOT_DIR/dist/windows" && zip -r "arut-java-win64-$VERSION.zip" "arut-java-win64-$VERSION"
+    cd "$ROOT_DIR/dist/linux" && zip -r "arut-rust-linux64-$VERSION.zip" "arut-rust-linux64-$VERSION"
+    cd "$ROOT_DIR/dist/linux" && zip -r "arut-java-linux64-$VERSION.zip" "arut-java-linux64-$VERSION"
+    cd "$ROOT_DIR/dist/macos" && zip -r "arut-rust-macos64-$VERSION.zip" "arut-rust-macos64-$VERSION"
+    cd "$ROOT_DIR/dist/macos" && zip -r "arut-java-macos64-$VERSION.zip" "arut-java-macos64-$VERSION"
+    cd "$ROOT_DIR/dist/all-platform" && zip -r "arut-rust-all-$VERSION.zip" "arut-rust-all-$VERSION"
+    cd "$ROOT_DIR/dist/all-platform" && zip -r "arut-java-all-$VERSION.zip" "arut-java-all-$VERSION"
+    cd "$ROOT_DIR"
 fi
-EOF
-chmod +x "$DIR_ALL_JAVA/arut-run"
-
-cat << 'EOF' > "$DIR_ALL_JAVA/arut.sh"
-#!/bin/sh
-DIR="$(cd "$(dirname "$0")" && pwd)"
-export PATH="$DIR:$PATH"
-if [ -f "$DIR/arut.jar" ]; then
-    exec java -jar "$DIR/arut.jar" "$@"
-else
-    echo "[ERROR] arut.jar not found."
-fi
-EOF
-chmod +x "$DIR_ALL_JAVA/arut.sh"
 
 echo ""
 echo "========================================================"
-echo "  Release Bundles Ready for Zipping / Publishing:"
-echo "  - dist/windows/arut-rust-win64-$VERSION/"
-echo "  - dist/windows/arut-java-win64-$VERSION/"
-echo "  - dist/linux/arut-rust-linux64-$VERSION/"
-echo "  - dist/linux/arut-java-linux64-$VERSION/"
-echo "  - dist/macos/arut-rust-macos64-$VERSION/"
-echo "  - dist/macos/arut-java-macos64-$VERSION/"
-echo "  - dist/all-platform/arut-rust-all-$VERSION/"
-echo "  - dist/all-platform/arut-java-all-$VERSION/"
+echo "  Release Bundles Ready in dist/:"
+echo "  - dist/windows/arut-rust-win64-$VERSION.zip"
+echo "  - dist/windows/arut-java-win64-$VERSION.zip"
+echo "  - dist/linux/arut-rust-linux64-$VERSION.zip"
+echo "  - dist/linux/arut-java-linux64-$VERSION.zip"
+echo "  - dist/macos/arut-rust-macos64-$VERSION.zip"
+echo "  - dist/macos/arut-java-macos64-$VERSION.zip"
+echo "  - dist/all-platform/arut-rust-all-$VERSION.zip"
+echo "  - dist/all-platform/arut-java-all-$VERSION.zip"
 echo "========================================================"
