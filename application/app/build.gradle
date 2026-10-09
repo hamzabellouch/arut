@@ -13,8 +13,8 @@ android {
         applicationId "com.tkno.arut"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode 9
-        versionName "0.0.1-beta"
+        versionCode 10
+        versionName "0.0.2-beta"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures {

@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 set "ROOT_DIR=%~dp0"
 cd /d "%ROOT_DIR%"
 
-set "VERSION=v0.0.1-beta"
+set "VERSION=v0.0.2-beta"
 
 echo ========================================================
 echo   Building ARUT Multi-Platform Release Packages (%VERSION%)

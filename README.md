@@ -43,17 +43,17 @@ ARUT/
 │   └── rust/                # High-performance Rust (mio) native relay server
 ├── dist/                    # Automated Multi-Platform Distribution Bundles
 │   ├── windows/
-│   │   ├── arut-rust-win64-v0.0.1-beta/      # Windows Native Rust package (arut.exe, ADB, APK, scripts)
-│   │   └── arut-java-win64-v0.0.1-beta/      # Windows Java package (arut.jar, ADB, APK, scripts)
+│   │   ├── arut-rust-win64-v0.0.2-beta/      # Windows Native Rust package (arut.exe, ADB, APK, scripts)
+│   │   └── arut-java-win64-v0.0.2-beta/      # Windows Java package (arut.jar, ADB, APK, scripts)
 │   ├── linux/
-│   │   ├── arut-rust-linux64-v0.0.1-beta/    # Linux Native Rust package (arut, ADB, APK, scripts)
-│   │   └── arut-java-linux64-v0.0.1-beta/    # Linux Java package (arut.jar, ADB, APK, scripts)
+│   │   ├── arut-rust-linux64-v0.0.2-beta/    # Linux Native Rust package (arut, ADB, APK, scripts)
+│   │   └── arut-java-linux64-v0.0.2-beta/    # Linux Java package (arut.jar, ADB, APK, scripts)
 │   ├── macos/
-│   │   ├── arut-rust-macos64-v0.0.1-beta/    # macOS Native Rust package (arut, ADB, APK, scripts)
-│   │   └── arut-java-macos64-v0.0.1-beta/    # macOS Java package (arut.jar, ADB, APK, scripts)
+│   │   ├── arut-rust-macos64-v0.0.2-beta/    # macOS Native Rust package (arut, ADB, APK, scripts)
+│   │   └── arut-java-macos64-v0.0.2-beta/    # macOS Java package (arut.jar, ADB, APK, scripts)
 │   └── all-platform/
-│       ├── arut-rust-all-v0.0.1-beta/        # Multi-Platform Rust bundle (arut.exe, arut, ADB, APK, scripts)
-│       └── arut-java-all-v0.0.1-beta/        # Universal Java bundle (arut.jar, ADB, APK, scripts)
+│       ├── arut-rust-all-v0.0.2-beta/        # Multi-Platform Rust bundle (arut.exe, arut, ADB, APK, scripts)
+│       └── arut-java-all-v0.0.2-beta/        # Universal Java bundle (arut.jar, ADB, APK, scripts)
 ├── tools/                   # Bundled standalone platform tools
 │   └── adb/                 # Official ADB binaries & runtime libraries
 │       ├── windows/         # adb.exe, AdbWinApi.dll, AdbWinUsbApi.dll
@@ -127,16 +127,16 @@ ARUT/
 Download the [latest release][latest] in your preferred flavor:
 
 #### Rust (Native - Lowest CPU & Memory, No Java Required)
-- **Windows:** [`arut-rust-win64-v0.0.1-beta.zip`][direct-rust-win64]
-- **Linux:** [`arut-rust-linux64-v0.0.1-beta.zip`][direct-rust-linux64]
-- **macOS:** [`arut-rust-macos64-v0.0.1-beta.zip`][direct-rust-macos64]
-- **All Platforms (Multi-Platform Rust):** [`arut-rust-all-v0.0.1-beta.zip`][direct-rust-all]
+- **Windows:** [`arut-rust-win64-v0.0.2-beta.zip`][direct-rust-win64]
+- **Linux:** [`arut-rust-linux64-v0.0.2-beta.zip`][direct-rust-linux64]
+- **macOS:** [`arut-rust-macos64-v0.0.2-beta.zip`][direct-rust-macos64]
+- **All Platforms (Multi-Platform Rust):** [`arut-rust-all-v0.0.2-beta.zip`][direct-rust-all]
 
 #### Java (Portable - Requires Java 17+)
-- **Windows:** [`arut-java-win64-v0.0.1-beta.zip`][direct-java-win64]
-- **Linux:** [`arut-java-linux64-v0.0.1-beta.zip`][direct-java-linux64]
-- **macOS:** [`arut-java-macos64-v0.0.1-beta.zip`][direct-java-macos64]
-- **All Platforms (Universal Java):** [`arut-java-all-v0.0.1-beta.zip`][direct-java-all]
+- **Windows:** [`arut-java-win64-v0.0.2-beta.zip`][direct-java-win64]
+- **Linux:** [`arut-java-linux64-v0.0.2-beta.zip`][direct-java-linux64]
+- **macOS:** [`arut-java-macos64-v0.0.2-beta.zip`][direct-java-macos64]
+- **All Platforms (Universal Java):** [`arut-java-all-v0.0.2-beta.zip`][direct-java-all]
 
 
 
@@ -151,12 +151,12 @@ Connect your Android device to your computer via USB and ensure **USB Debugging*
 Each release folder includes pre-configured launcher scripts that automatically detect ADB, check/install `arut.apk`, configure the reverse tunnel, and start the relay server:
 
 ##### Windows (Rust & Java Flavors)
-1. Extract your downloaded archive (e.g. `arut-rust-win64-v0.0.1-beta` or `arut-java-win64-v0.0.1-beta`).
+1. Extract your downloaded archive (e.g. `arut-rust-win64-v0.0.2-beta` or `arut-java-win64-v0.0.2-beta`).
 2. Double-click **`arut-run.cmd`**.
    - **Why `arut-run.cmd` instead of `arut.exe`?** `arut.exe` is a command-line binary. Double-clicking `arut-run.cmd` automatically passes the `run` command and keeps the terminal window open with a pause, allowing you to monitor real-time traffic statistics and connection logs without the console window closing unexpectedly.
 
 ##### Linux (Rust & Java Flavors)
-1. Extract your downloaded archive (e.g. `arut-rust-linux64-v0.0.1-beta` or `arut-java-linux64-v0.0.1-beta`).
+1. Extract your downloaded archive (e.g. `arut-rust-linux64-v0.0.2-beta` or `arut-java-linux64-v0.0.2-beta`).
 2. Open a terminal inside the extracted directory and run:
    ```bash
    ./arut-run
@@ -164,7 +164,7 @@ Each release folder includes pre-configured launcher scripts that automatically 
    *(Or double-click `arut-run` if your desktop file manager is configured to execute shell scripts).*
 
 ##### macOS (Rust & Java Flavors)
-1. Extract your downloaded archive (e.g. `arut-rust-macos64-v0.0.1-beta` or `arut-java-macos64-v0.0.1-beta`).
+1. Extract your downloaded archive (e.g. `arut-rust-macos64-v0.0.2-beta` or `arut-java-macos64-v0.0.2-beta`).
 2. Open a terminal inside the extracted directory and run:
    ```bash
    ./arut-run
@@ -315,14 +315,14 @@ Stay connected and follow us on:
 
 <!-- Links Reference List -->
 [latest]: https://github.com/hamzabellouch/arut/releases/latest
-[direct-rust-win64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-rust-win64-v0.0.1-beta.zip
-[direct-rust-linux64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-rust-linux64-v0.0.1-beta.zip
-[direct-rust-macos64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-rust-macos64-v0.0.1-beta.zip
-[direct-rust-all]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-rust-all-v0.0.1-beta.zip
-[direct-java-win64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-java-win64-v0.0.1-beta.zip
-[direct-java-linux64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-java-linux64-v0.0.1-beta.zip
-[direct-java-macos64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-java-macos64-v0.0.1-beta.zip
-[direct-java-all]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-java-all-v0.0.1-beta.zip
+[direct-rust-win64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.2-beta/arut-rust-win64-v0.0.2-beta.zip
+[direct-rust-linux64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.2-beta/arut-rust-linux64-v0.0.2-beta.zip
+[direct-rust-macos64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.2-beta/arut-rust-macos64-v0.0.2-beta.zip
+[direct-rust-all]: https://github.com/hamzabellouch/arut/releases/download/v0.0.2-beta/arut-rust-all-v0.0.2-beta.zip
+[direct-java-win64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.2-beta/arut-java-win64-v0.0.2-beta.zip
+[direct-java-linux64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.2-beta/arut-java-linux64-v0.0.2-beta.zip
+[direct-java-macos64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.2-beta/arut-java-macos64-v0.0.2-beta.zip
+[direct-java-all]: https://github.com/hamzabellouch/arut/releases/download/v0.0.2-beta/arut-java-all-v0.0.2-beta.zip
 [enable-adb]: https://developer.android.com/studio/command-line/adb.html#Enabling
 [platform-tools]: https://developer.android.com/studio/releases/platform-tools.html
 [platform-tools-windows]: https://dl.google.com/android/repository/platform-tools-latest-windows.zip
