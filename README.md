@@ -130,13 +130,13 @@ Download the [latest release][latest] in your preferred flavor:
 - **Windows:** [`arut-rust-win64-v0.0.1-beta.zip`][direct-rust-win64]
 - **Linux:** [`arut-rust-linux64-v0.0.1-beta.zip`][direct-rust-linux64]
 - **macOS:** [`arut-rust-macos64-v0.0.1-beta.zip`][direct-rust-macos64]
-- **All Platforms (Multi-Platform Rust):** `arut-rust-all-v0.0.1-beta.zip`
+- **All Platforms (Multi-Platform Rust):** [`arut-rust-all-v0.0.1-beta.zip`][direct-rust-all]
 
 #### Java (Portable - Requires Java 17+)
-- **Windows:** `arut-java-win64-v0.0.1-beta.zip`
-- **Linux:** `arut-java-linux64-v0.0.1-beta.zip`
-- **macOS:** `arut-java-macos64-v0.0.1-beta.zip`
-- **All Platforms (Universal Java):** [`arut-java-all-v0.0.1-beta.zip`][direct-java]
+- **Windows:** [`arut-java-win64-v0.0.1-beta.zip`][direct-java-win64]
+- **Linux:** [`arut-java-linux64-v0.0.1-beta.zip`][direct-java-linux64]
+- **macOS:** [`arut-java-macos64-v0.0.1-beta.zip`][direct-java-macos64]
+- **All Platforms (Universal Java):** [`arut-java-all-v0.0.1-beta.zip`][direct-java-all]
 
 
 
@@ -315,10 +315,14 @@ Stay connected and follow us on:
 
 <!-- Links Reference List -->
 [latest]: https://github.com/hamzabellouch/arut/releases/latest
-[direct-rust-linux64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-rust-linux64.zip
-[direct-rust-win64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-rust-win64.zip
-[direct-rust-macos64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-rust-macos64.zip
-[direct-java]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-java.zip
+[direct-rust-win64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-rust-win64-v0.0.1-beta.zip
+[direct-rust-linux64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-rust-linux64-v0.0.1-beta.zip
+[direct-rust-macos64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-rust-macos64-v0.0.1-beta.zip
+[direct-rust-all]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-rust-all-v0.0.1-beta.zip
+[direct-java-win64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-java-win64-v0.0.1-beta.zip
+[direct-java-linux64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-java-linux64-v0.0.1-beta.zip
+[direct-java-macos64]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-java-macos64-v0.0.1-beta.zip
+[direct-java-all]: https://github.com/hamzabellouch/arut/releases/download/v0.0.1-beta/arut-java-all-v0.0.1-beta.zip
 [enable-adb]: https://developer.android.com/studio/command-line/adb.html#Enabling
 [platform-tools]: https://developer.android.com/studio/releases/platform-tools.html
 [platform-tools-windows]: https://dl.google.com/android/repository/platform-tools-latest-windows.zip
