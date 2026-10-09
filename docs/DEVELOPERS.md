@@ -290,7 +290,7 @@ Both implementations share identical protocol rules, socket management semantics
 ## Building from Source & Development Workflow
 
 ### 1. Workspace Prerequisites
-- **JDK 17+** (Adoptium Temurin 17 recommended)
+- **JDK** (Default OpenJDK / JDK 17+)
 - **Android SDK** with Platform Tools API 24+ & Build-Tools 36+
 - **Rust Toolchain** (`rustup` / `cargo` 1.80+)
 

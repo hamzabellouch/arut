@@ -85,27 +85,27 @@ ARUT/
   - **Linux (Ubuntu/Debian):** `sudo apt install adb` (or `sudo pacman -S android-tools` on Arch)
   - **macOS:** `brew install android-platform-tools`
 
-#### B. Java 17+ (Required for Android Client & Java Relay)
-- **Java 17 (JDK / JRE)** or newer:
-  - **Windows:** Download from [Adoptium Temurin 17](https://adoptium.net/) or run:
-    ```cmd
-    winget install EclipseAdoptium.Temurin.17.JDK
-    ```
+#### B. Java (JDK / JRE) - Required for Android Client & Java Relay
+- **Java (JDK / JRE)**:
   - **Linux (Ubuntu / Debian):**
     ```bash
-    sudo apt update && sudo apt install openjdk-17-jdk
+    sudo apt update && sudo apt install default-jdk -y
     ```
   - **Linux (Fedora / RHEL):**
     ```bash
-    sudo dnf install java-17-openjdk-devel
+    sudo dnf install java-latest-openjdk-devel
     ```
   - **Linux (Arch Linux):**
     ```bash
-    sudo pacman -S jdk17-openjdk
+    sudo pacman -S jdk-openjdk
     ```
   - **macOS:**
     ```bash
-    brew install openjdk@17
+    brew install openjdk
+    ```
+  - **Windows:** Download from [Adoptium Temurin](https://adoptium.net/) or run:
+    ```cmd
+    winget install EclipseAdoptium.Temurin.17.JDK
     ```
 
 #### C. Rust & Cargo (Required for High-Performance Native Relay)
